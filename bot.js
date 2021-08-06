@@ -1,23 +1,46 @@
-const { StaticAuthProvider } = require('twitch-auth');
+const { RefreshableAuthProvider, StaticAuthProvider } = require('twitch-auth');
 const { ChatClient } = require('twitch-chat-client');
 const { ApiClient } = require('twitch');
 const { PubSubClient } = require('twitch-pubsub-client');
 const { commands } = require('./commands');
 
+const Token = require('./models/tokenModel');
 
 class StopBWBot {
-    constructor (clientId, authToken, botAdmins, reasonsArray) {
+    constructor (clientId, clientSecret, accessToken, refreshToken, expiryTimestap, botAdmins, reasonsArray) {
         this.clientId = clientId;
-        this.authToken = authToken;
+        this.clientSecret = clientSecret;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiryTimestap = expiryTimestap;
         this.botAdmins = botAdmins;
         this.reasons = reasonsArray;
     };
 
-    init() {
-        this.authProvider = new StaticAuthProvider(
-            this.clientId,
-            this.authToken,
-            ['moderation:read', 'chat:read', 'chat:edit', 'channel:moderate'],
+    async init() {
+        this.authProvider = new RefreshableAuthProvider(
+            this.authProvider = new StaticAuthProvider(
+                this.clientId,
+                this.accessToken,
+                ['moderation:read', 'chat:read', 'chat:edit', 'channel:moderate'],
+            ), 
+            {
+                clientSecret: this.clientSecret,
+                refreshToken: this.refreshToken,
+                expiry: this.expiryTimestamp === null ? null : new Date(this.expiryTimestamp),
+                onRefresh: async ({ accessToken, refreshToken, expiryDate }) => {
+                    const newTokenData = {
+                        accessToken,
+                        refreshToken,
+                        expiryTimestamp: expiryDate === null ? null : expiryDate.getTime()
+                    };
+                    await Token.updateOne(Token, {
+                        $set: Token
+                    })
+
+                }
+
+            }
         );
         this.chatClient = new ChatClient(this.authProvider, { channels: ['stopbwbot'] });
         this.apiClient = new ApiClient({ authProvider: this.authProvider });
@@ -100,7 +123,7 @@ class StopBWBot {
                         }
                     };
                 }
-                this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squad}`);
+                this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squad} monkaW`);
             });
         } catch (err) {
             console.error(err);
