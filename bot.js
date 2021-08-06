@@ -110,7 +110,7 @@ class StopBWBot {
                 if (message.action !== 'ban') return;
     
                 const [target, reason] = message.args;
-                if (this.reasons.indexOf(reason) === -1) return;
+                if (this.reasons.indexOf(reason.toLowerCase()) === -1) return;
 
                 const squad = streamers[0].squadName;
                 for(let i = 0; i <= streamers.length - 1; i++) {
