@@ -142,6 +142,7 @@ class StopBWBot {
             return arr;
         } catch (err) {
             console.error(err); 
+            return [];
         }
     }
 }
