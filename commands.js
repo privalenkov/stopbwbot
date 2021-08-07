@@ -84,11 +84,12 @@ const commands = {
 
             if (!streamerName) {
                 const length = streamers.length;
+                const squad = streamers[0].squadName;
                 for (let i = 0; i <= length - 1; i++) {
                     await streamers[0].modListener.remove();
                     streamers.splice(0, 1);
                 }
-                return 'Перестал следить за сквадом pepeChill'
+                return `Перестал следить за сквадом ${squad} pepeChill`;
             }
 
             const index = streamers.map((e) => e.name).indexOf(streamerName);
