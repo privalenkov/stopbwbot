@@ -134,10 +134,12 @@ class StopBWBot {
         try {
             let arr = [];
             const tags = await this.apiClient.helix.teams.getTeamByName(teamName);
-            const users = await tags.getUserRelations();
-            for(let i = 0; i <= users.length - 1; i++) {
-                const user = await users[i].getUser();
-                arr.push({ id: user.id, name: user.name, modListener: null, teamName: tags.name });
+            if(tags) {
+                const users = await tags.getUserRelations() ;
+                for(let i = 0; i <= users.length - 1; i++) {
+                    const user = await users[i].getUser();
+                    arr.push({ id: user.id, name: user.name, modListener: null, teamName: tags.name });
+                }
             }
             return arr;
         } catch (err) {
