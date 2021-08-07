@@ -89,6 +89,7 @@ const commands = {
                     await streamers[0].modListener.remove();
                     streamers.splice(0, 1);
                 }
+                console.log(`disconnected from squad ${squad}`)
                 return `Перестал следить за сквадом ${squad} pepeChill`;
             }
 
