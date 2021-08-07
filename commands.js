@@ -97,7 +97,7 @@ const commands = {
                 streamers.splice(index, 1);
                 return `Перестал следить за стримером ${streamerName}`
             }
-            return `За стримером под ником ${streamerName} я не слежу`;
+            return `За стримером под ником ${streamerName} я не слежу pepeChill`;
         }
     }
 }
