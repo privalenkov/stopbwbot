@@ -21,11 +21,15 @@ const commands = {
                 for(let i=0; i <= streamers.length - 1; i++) {
                     streamers[i].modListener = await global.bot.modListener(userId, streamers[i].id, streamers)
                 }
-                console.log(`connected to squad ${teamName}`)
-                return `Приступил к слежению за сквадом ${teamName}! catJAM`;
+
+                if(streamers.length !== 0) {
+                    console.log(`connected to squad ${teamName}`)
+                    return `Приступил к слежению за сквадом ${teamName}! catJAM`;
+                }
+                return 'Такого сквада я не нашел Sadge';
             } catch (err) {
                 console.error(err);
-                return 'Такого сквада я не нашел Sadge';
+                return 'Что-то пошло не так Sadge';
             }
         }
     },
