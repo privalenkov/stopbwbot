@@ -25,6 +25,7 @@ const commands = {
                 return `Приступил к слежению за сквадом ${teamName}! catJAM`;
             } catch (err) {
                 console.error(err);
+                return 'Такого стримера я не нашел Sadge';
             }
         }
     },
