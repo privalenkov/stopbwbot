@@ -34,8 +34,8 @@ class StopBWBot {
                         refreshToken,
                         expiryTimestamp: expiryDate === null ? null : expiryDate.getTime()
                     };
-                    await Token.updateOne(Token, {
-                        $set: Token
+                    await Token.updateOne({}, {
+                        $set: newTokenData
                     })
 
                 }
@@ -59,11 +59,11 @@ class StopBWBot {
         try {
             this.chatClient.connect().then(() => {
                 console.log(`connect`);
-                this.chatClient.onMessage((channel, user, message) => {
+                this.chatClient.onMessage(async (channel, user, message) => {
                     if (user === 'stopbwbot') return;
 
                     if (this.botAdmins.indexOf(user) === -1) {
-                        this.chatClient.say(channel, 'У вас нет прав на выполнение данной команды Sadge');
+                        await this.chatClient.say(channel, 'У вас нет прав на выполнение данной команды Sadge');
                         return;
                     }
 
@@ -73,11 +73,10 @@ class StopBWBot {
 
                     const [raw, command, argument] = message.match(regexpCommand);
                     const { response } = commands[command.toLowerCase()] || {}
-
                     if (typeof response === 'function') {
                         switch (command) {
-                            case 'selectsquad':
-                                this.chatClient.say(channel, `Подключаюсь к скваду ${argument}... modCheck`);
+                            case 'slteam':
+                                await this.chatClient.say(channel, `Подключаюсь к скваду ${argument}... modCheck`);
                                 break;
                             default:
                                 break;
@@ -85,14 +84,15 @@ class StopBWBot {
                             
                         const AsyncFunction = (async () => {}).constructor;
                         if(response instanceof AsyncFunction) {
-                            response(argument).then((data) => this.chatClient.say(channel, data))
+                            const data = await response({ user, argument });
+                            await this.chatClient.say(channel, data);
                         } else {
-                            this.chatClient.say(channel, response(argument))
+                            await this.chatClient.say(channel, response(argument))
                         }
                     } else if (typeof response === 'string') {
-                        this.chatClient.say(channel, response);
+                        await this.chatClient.say(channel, response);
                     } else {
-                        this.chatClient.say(channel, 'Я не знаю такой команды Sadge');
+                        await this.chatClient.say(channel, 'Я не знаю такой команды Sadge');
                     }
                 });
             });
@@ -123,7 +123,7 @@ class StopBWBot {
                         }
                     };
                 }
-                this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squad} monkaW`);
+                await this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squad} monkaW`);
             });
         } catch (err) {
             console.error(err);
@@ -137,8 +137,7 @@ class StopBWBot {
             if(tags) {
                 const users = await tags.getUserRelations() ;
                 for(let i = 0; i <= users.length - 1; i++) {
-                    const user = await users[i].getUser();
-                    arr.push({ id: user.id, name: user.name, modListener: null, teamName: tags.name });
+                    arr.push({ id: users[i].id, name: users[i].name, modListener: null, teamName: tags.name });
                 }
             }
             return arr;
@@ -146,6 +145,29 @@ class StopBWBot {
             console.error(err); 
             return [];
         }
+    }
+    async getTeamsFromUser(userName) {
+        try {
+            const arr = [];
+            if (userName !== 'kerilv') {
+                const user = await this.apiClient.helix.users.getUserByName(userName);
+                const helixTeam = await this.apiClient.helix.teams.getTeamsForBroadcaster({ id: user.id });
+                if(helixTeam.length !== 0) {
+                    helixTeam.forEach((e) => {
+                        arr.push(e.name);
+                    })
+                }
+            } else {
+                arr.push('test');
+            }
+            return arr;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+    async clientSay(channel, message) {
+        await this.chatClient.say(channel, message);
     }
 }
 
