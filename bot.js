@@ -116,7 +116,6 @@ class StopBWBot {
                 const squadName = await bot.getTeamsFromUserById(channelId);
 
                 const filterStreamers = streamers.filter((data) => data.teamName === squadName[0]);
-                console.log(squadName, filterStreamers);
                 // const squad = streamers[0].squadName;
                 for(let i = 0; i <= filterStreamers.length - 1; i++) {
                     if (channelId !== filterStreamers[i].id) {
