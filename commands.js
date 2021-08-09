@@ -8,7 +8,7 @@ const commands = {
             try {
                 //// убрать
                 if (streamers.length !== 0) {
-                    return `Я занят. Слежу за сквадом ${obj.argument} catJAM`;
+                    return `${obj.user} Я занят. Слежу за сквадом ${obj.argument} catJAM`;
                 }
                 if (!obj.argument) {
                     return `${obj.user} Введите имя сквада !slteam <имя_сквада>`;
@@ -52,12 +52,12 @@ const commands = {
                 ////// убрать
                 if(streamers.length !== 0) {
                     console.log(`connected to squad ${obj.argument}`)
-                    return `Приступил к слежению за сквадом ${obj.argument}! catJAM`;
+                    return `${obj.user} Приступил к слежению за сквадом ${obj.argument}! catJAM`;
                 }
-                return 'Такого сквада я не нашел Sadge';
+                return `${obj.user} Такого сквада я не нашел Sadge`;
             } catch (err) {
                 console.error(err);
-                return 'Что-то пошло не так Sadge';
+                return `${obj.user} Что-то пошло не так Sadge`;
             }
         }
     },
@@ -145,16 +145,16 @@ const commands = {
                     streamers.splice(0, 1);
                 }
                 console.log(`disconnected from squad ${squad}`)
-                return `Перестал следить за сквадом ${squad} pepeChill`;
+                return `${obj.user} Перестал следить за сквадом ${squad} pepeChill`;
             }
 
             const index = streamers.map((e) => e.name).indexOf(obj.argument);
             if(index > -1) {
                 await streamers[index].modListener.remove();
                 streamers.splice(index, 1);
-                return `Перестал следить за стримером ${obj.argument}`
+                return `${obj.user} Перестал следить за стримером ${obj.argument}`
             }
-            return `За стримером под ником ${obj.argument} я не слежу pepeChill`;
+            return `${obj.user} За стримером под ником ${obj.argument} я не слежу pepeChill`;
         }
     },
     list: {
@@ -165,7 +165,7 @@ const commands = {
 
             const bans = await BanModel.find({ squadName: obj.argument }, {_id: 0, userName: 1 });
             const arr = bans.map((data) => data.userName);
-            return `Во всем скваде ${obj.argument} были забанены: ${arr.length !== 0 ? arr.join(', ') : 'пусто'}`;
+            return `${obj.user} Во всем скваде ${obj.argument} были забанены: ${arr.length !== 0 ? arr.join(', ') : 'пусто'}`;
         }
     }
 }
