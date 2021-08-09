@@ -1,5 +1,6 @@
 let  streamers = '';
 // const StreamerModel = require('./models/streamerModel');
+const BanModel = require('./models/banModel');
 
 const commands = {
     slteam: {
@@ -13,7 +14,7 @@ const commands = {
                     return `${obj.user} Введите имя сквада !slteam <имя_сквада>`;
                 }
 
-                // const userTeams = await global.bot.getTeamsFromUser(obj.user);
+                // const userTeams = await global.bot.getTeamsFromUserByName(obj.user);
                 // if (userTeams.indexOf(obj.argument) === -1) {
                 //     return `${obj.user} У вас нет прав на выполнение данной команды Sadge`;
                 // }
@@ -29,7 +30,7 @@ const commands = {
                 } else {
                     streamers = [
                         { id: '535189734', name: 'kerilv', modListener: null, teamName: 'test' },
-                        { id: '713566718', name: 'stopbwbot', modListener: null, teamName: 'test' },
+                        { id: '713566718', name: 'stopbwbot', modListener: null, teamName: 'test5' },
                         { id: '438633374', name: 'anime4ort', modListener: null, teamName: 'test' },
                         { id: '520270072', name: 'joebarbaroef', modListener: null, teamName: 'test' },
                     ];  
@@ -84,6 +85,8 @@ const commands = {
                     return '!status | С помощью этой команды, я могу сообщить вам о том, что сейчас я занят и веду наблюдение за нарушителями! BOOBA';
                 case 'stop':
                     return '!stop или !stop <имя_стримера> | С помощью этой команды, можно остановить слежение за текущим сквадом, либо за конкретным стримером текущего сквада.'
+                case 'list':
+                return '!list <имя_сквада> | С помощью этой команды, можно получить список забаненых пользователей по скваду. Starege'
                 case 'cmds':
                     return `
                     Команды ${Object.keys(commands).join(', ')}
@@ -152,6 +155,17 @@ const commands = {
                 return `Перестал следить за стримером ${obj.argument}`
             }
             return `За стримером под ником ${obj.argument} я не слежу pepeChill`;
+        }
+    },
+    list: {
+        response: async (obj) => {
+            if (!obj.argument) {
+                return `${obj.user} Введите имя сквада !list <имя_сквада>`;
+            }
+
+            const bans = await BanModel.find({ squadName: obj.argument }, {_id: 0, userName: 1 });
+            const arr = bans.map((data) => data.userName);
+            return `Во всем скваде ${obj.argument} были забанены: ${arr.length !== 0 ? arr.join(', ') : 'пусто'}`;
         }
     }
 }

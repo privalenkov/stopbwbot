@@ -4,6 +4,7 @@ const { ApiClient } = require('twitch');
 const { PubSubClient } = require('twitch-pubsub-client');
 const { commands } = require('./commands');
 
+const BanModel = require('./models/banModel');
 const Token = require('./models/tokenModel');
 
 class StopBWBot {
@@ -76,7 +77,7 @@ class StopBWBot {
                     if (typeof response === 'function') {
                         switch (command) {
                             case 'slteam':
-                                await this.chatClient.say(channel, `Подключаюсь к скваду ${argument}... modCheck`);
+                                await this.chatClient.say(channel, `Подключаюсь к скваду ${argument ? argument : ''}... modCheck`);
                                 break;
                             default:
                                 break;
@@ -112,18 +113,26 @@ class StopBWBot {
                 const [target, reason] = message.args;
                 if (this.reasons.indexOf(reason.toLowerCase()) === -1) return;
 
-                const squad = streamers[0].squadName;
-                for(let i = 0; i <= streamers.length - 1; i++) {
-                    if (channelId !== streamers[i].id) {
+                const squadName = await bot.getTeamsFromUserById(channelId);
+
+                const filterStreamers = streamers.filter((data) => data.teamName === squadName[0]);
+                console.log(squadName, filterStreamers);
+                // const squad = streamers[0].squadName;
+                for(let i = 0; i <= filterStreamers.length - 1; i++) {
+                    if (channelId !== filterStreamers[i].id) {
                         try {
-                            await this.chatClient.ban(streamers[i].name, target, reason)
-                            console.log(`${streamers[i].name} ${target} has been banned stopbwbot ${reason}!`);
+                            await this.chatClient.ban(filterStreamers[i].name, target, reason)
+                            console.log(`${filterStreamers[i].name} ${target} has been banned stopbwbot ${reason}!`);
                         } catch (err) {
                             console.error(err);
                         }
                     };
                 }
-                await this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squad} monkaW`);
+                await BanModel.create({
+                    userName: target,
+                    squadName: squadName[0],
+                })
+                await this.chatClient.say('stopbwbot', `StopBWbot забанил ${target} на всех стримах ${squadName[0]} monkaW`);
             });
         } catch (err) {
             console.error(err);
@@ -146,7 +155,7 @@ class StopBWBot {
             return [];
         }
     }
-    async getTeamsFromUser(userName) {
+    async getTeamsFromUserByName(userName) {
         try {
             const arr = [];
             if (userName !== 'kerilv') {
@@ -166,8 +175,21 @@ class StopBWBot {
             return [];
         }
     }
-    async clientSay(channel, message) {
-        await this.chatClient.say(channel, message);
+    async getTeamsFromUserById(streamerId) {
+        try {
+            const arr = [];
+            const helixTeam = await this.apiClient.helix.teams.getTeamsForBroadcaster({ id: streamerId });
+            if(helixTeam.length !== 0) {
+                helixTeam.forEach((e) => {
+                    arr.push(e.name);
+                })
+            }
+            // arr.push('test');
+            return arr;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
     }
 }
 
