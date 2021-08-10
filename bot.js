@@ -113,12 +113,12 @@ class StopBWBot {
                 const [target, reason] = message.args;
                 if (this.reasons.indexOf(reason.toLowerCase()) === -1) return;
 
-                const squadName = await bot.getTeamsFromUserById(channelId);
+                const squadName = await bot.getTeamsFromUserById(message.channelId);
 
                 const filterStreamers = streamers.filter((data) => data.teamName === squadName[0]);
                 // const squad = streamers[0].squadName;
                 for(let i = 0; i <= filterStreamers.length - 1; i++) {
-                    if (channelId !== filterStreamers[i].id) {
+                    if (message.channelId !== filterStreamers[i].id) {
                         try {
                             await this.chatClient.ban(filterStreamers[i].name, target, reason)
                             console.log(`${filterStreamers[i].name} ${target} has been banned stopbwbot ${reason}!`);

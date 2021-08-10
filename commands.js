@@ -43,8 +43,21 @@ const commands = {
                 // for(let i=0; i <= streamers.length - 1; i++) {
                 //     streamers[i].modListener = await global.bot.modListener(this.userId, streamers[i].id, streamers)
                 // }
-                for(let i=0; i <= streamers.length - 1; i++) {
-                    streamers[i].modListener = await global.bot.modListener(userId, streamers[i].id, streamers)
+                try {
+                    const filterStreamers = streamers.filter((data) => data.teamName === obj.argument);
+                    const arr = [];
+                    for(let i = 0; i <= filterStreamers.length - 1; i++) {
+                        const res = await global.bot.chatClient.getMods(filterStreamers[i].name);
+                        const resfilter = res.filter((e) => 'stopbwbot' === e);
+                        if(resfilter.length === 0) arr.push(filterStreamers[i].name);
+                    }
+                    if(arr.length !== 0) throw new Error(arr);
+                    for(let i=0; i <= streamers.length - 1; i++) {
+                        streamers[i].modListener = await global.bot.modListener(userId, streamers[i].id, streamers)
+                    }
+                } catch (err) {
+                    streamers = [];
+                    return `${obj.user} Для корректной работы я должен быть модератором на всех стримах сквада. Я не модератор на стримах: ${err.message}`;
                 }
                 // streamers = [];
 
@@ -137,24 +150,24 @@ const commands = {
             // return `${obj.user} перестал следить за сквадом ${obj.argument} pepeChill`;
             if (streamers.length === 0) return 'А я и так ни за кем не слежу pepeChill';
 
-            if (!obj.argument) {
-                const length = streamers.length;
-                const squad = streamers[0].teamName;
-                for (let i = 0; i <= length - 1; i++) {
-                    await streamers[0].modListener.remove();
-                    streamers.splice(0, 1);
-                }
-                console.log(`disconnected from squad ${squad}`)
-                return `${obj.user} Перестал следить за сквадом ${squad} pepeChill`;
+            // if (!obj.argument) {
+            const length = streamers.length;
+            const squad = streamers[0].teamName;
+            for (let i = 0; i <= length - 1; i++) {
+                await streamers[0].modListener.remove();
+                streamers.splice(0, 1);
             }
+            console.log(`disconnected from squad ${squad}`)
+            return `${obj.user} Перестал следить за сквадом ${squad} pepeChill`;
+            // }
 
-            const index = streamers.map((e) => e.name).indexOf(obj.argument);
-            if(index > -1) {
-                await streamers[index].modListener.remove();
-                streamers.splice(index, 1);
-                return `${obj.user} Перестал следить за стримером ${obj.argument}`
-            }
-            return `${obj.user} За стримером под ником ${obj.argument} я не слежу pepeChill`;
+            // const index = streamers.map((e) => e.name).indexOf(obj.argument);
+            // if(index > -1) {
+            //     await streamers[index].modListener.remove();
+            //     streamers.splice(index, 1);
+            //     return `${obj.user} Перестал следить за стримером ${obj.argument}`
+            // }
+            // return `${obj.user} За стримером под ником ${obj.argument} я не слежу pepeChill`;
         }
     },
     list: {
